@@ -1,18 +1,62 @@
 var map, service, infowindow;
-var museumlist = [];
-var markers = [];
-var $search = $('.search');
-var $list = $('#list');
-//var navElem = $('#bs-example-navbar-collapse-1');
-var museumIcon = 'https://maps.gstatic.com/mapfiles/place_api/icons/museum-71.png';
-//var markerIcon = 'https://maps.gstatic.com/intl/en_us/mapfiles/marker.png';
-var musuems;
 var input = /** @type {!HTMLInputElement} */(
       document.getElementById('autocomplete'));
-//var $infoContent ='<div id="infoWindow-wrapper"><div id="info-content"><p>Name:<strong data-bind="text: museumName"></strong></p><p>Address:<strong data-bind="text: museumAddress"></strong></p><p>Telephone:<strong data-bind="text: museumTelephone"></strong></p><p>Website:<strong data-bind="text: museumWebsite"></strong></p> </div></div>';
-  var $infoContent = $('#infowindow');
+var infoWindow;
+var $search = $('.search');
+var $list = $('#list');
+var myMuseums = [];
+var museumIcon = 'https://maps.gstatic.com/mapfiles/place_api/icons/museum-71.png';
+
+var museumlist = [
+{
+  name:"Deutsches Zollmuseum",
+  lat: 53.5458558223613,
+  lng: 9.99780874916624
+},
+{
+  name:"10. Nacht Der Kirchen",
+  lat: 53.5458,
+  lng: 9.99448
+},
+{
+  name:"Galerie Peter Borchardt",
+  lat: 53.5482245,
+  lng: 9.9989131
+},
+
+{
+  name:"Wilfried Bobsien",
+  lat: 53.548621,
+  lng: 9.997361
+},
+{
+  name:"Galerie Commeter Persiehl & Co.",
+  lat: 53.55092,
+  lng: 9.995273
+},
+{
+  name:"Galerie Commeter Sommer & Co.",
+  lat: 53.5509911,
+  lng: 9.9950304
+},
+{
+  name:"Kaffeemuseum Burg",
+  lat: 53.5447541998337,
+  lng: 9.99679114669561
+},
+
+
+]; 
+
+var Location = function(model) { 
+    this.name = ko.observable(model.name);   
+    this.lng = ko.observable(model.lng); 
+    this.lat = ko.observable(model.lat);    
+    //this.marker = new google.maps.Marker({}); 
+};  
 
 function initMap() {
+
   var hamburg = {lat: 53.548410, lng: 9.997090};
 
   map = new google.maps.Map(document.getElementById('map'), {
@@ -20,78 +64,108 @@ function initMap() {
     zoom: 15
   });
 
-  infowindow = new google.maps.InfoWindow({content: $infoContent});
-    
-  
-
-  service = new google.maps.places.PlacesService(map);
-  service.nearbySearch({
-    location: hamburg,
-    radius: 600,
-    type: ['museum']
-  }, callback); 
-
-
-}
-
-
-//Creating the markers of the found museums
-function callback(results, status) {
-  if (status === google.maps.places.PlacesServiceStatus.OK) {
-    for (var i = 0; i < results.length; i++) {
-      
-      //markers = createMarker(results[i]);
-      $list.append( "<li id='museum"+ i +"'><img src='"+museumIcon+"' alt='museum icon' class='museumIcon'><h5 class='name'>" +results[i].name+"</h5></li>" );
-      createMarker(results[i]);
-      //console.log(results[i]);
-      //Adding the found museum on the museumList array
-      museumlist.push(results[i].name);
-      // Creating and adding an element to the page at the same time.
-     
-    }
-    myBinding()
-  }   
-
-}
-//console.log(markers);
-//Create a marker for each museum found,
-function createMarker(place) {
-  var placeLoc = place.geometry.location;
-  var marker = new google.maps.Marker({
-    map: map,
-    position: place.geometry.location,
-    animation: google.maps.Animation.DROP 
-   });
-
-  //Displaying info-window with the clicked museum info.
-  google.maps.event.addListener(marker, 'click', function() {
-    //infowindow.setContent($infoContent);
-    //open info window.
-    infowindow.open(map, this);
-  });
-
-}
-
-
-//creating a array of the li.
-function myBinding(){
-  var liArray = $("li").toArray();
-  for (var i = 0; i< liArray.length; i++) {
-    $("#"+liArray[i].id).click(function(){ 
-      $(this).addClass('clicked-li').siblings().removeClass('clicked-li');
-    });
+  for (var i = 0; i < museumlist.length; i++) {
+    //Creating new marker object for each site.        
+    marker = new google.maps.Marker({
+      position: {lat: museumlist[i].lat, lng: museumlist[i].lng},
+      map: map,
+      title:museumlist[i].name
+      });
   }
-  
-  $('.listElem').click(function(){
-    //$(this).css({"backgroundColor":"#ccc","color":"#a94442"});
+
+  // creating the infoWindow 
+  infoWindow = new google.maps.InfoWindow({
   });
-  //$li.style.backgroundColor = (i % 2 === 0 ? '#F0F0F0' : '#FFFFFF');
-  //$li.onclick = function() {
-   // google.maps.event.trigger(place, 'click');
-  //};
+
+ko.applyBindings(new viewModel());
 }
 
-  //create and add the filter form to the search field
+/*--- ViewModel ---*/
+var viewModel = function() {
+
+  //var self = this;
+
+  //create an abservable array for the locations
+  this.locationList = ko.observable([]);
+
+  //iterating through the array of objects, and adding each museum to the locationList array and 
+  //passing each museum to the location constructor.(creating new cat basically)
+  museumlist.forEach(function(museum){
+    //this.locationList.push(new Location(museum) );
+  });
+
+  function nonce_generate() {
+    return (Math.floor(Math.random() * 1e12).toString());
+  }
+  //var hamburg = {lat: 53.548410, lng: 9.997090};
+  var consumerSecret = 'eukvtXpjSVpHflSBfrIAx0BsupU',
+      tokenSecret = 'X-d9JxoQQBXmr7_Q4FkITvVzk3k';
+  var httpMethod = 'GET';
+  var Yelp_url = 'https://api.yelp.com/v2/search/?',
+      parameters = {
+          oauth_consumer_key : '0TqRpmnRh5LnU36tggLf6Q',
+          oauth_token : 'Tjjb2L_1j2OmRDugXvaY99jMeXM71lYm',
+          oauth_nonce : nonce_generate(),
+          oauth_timestamp : Math.floor(Date.now()/1000),
+          oauth_signature_method : 'HMAC-SHA1',
+          oauth_version : '1.0',
+          callback: 'cb',
+          location: 'Altstadt+hamburg',
+          limit: '20',
+          radius_filter: '500',
+          term: 'museum',
+          category_filter: 'museums'
+      },
+      
+      // generates a RFC 3986 encoded, BASE64 encoded HMAC-SHA1 hash
+      encodedSignature = oauthSignature.generate(httpMethod, Yelp_url , parameters, consumerSecret, tokenSecret),
+      // generates a BASE64 encode HMAC-SHA1 hash
+      signature = oauthSignature.generate(httpMethod, Yelp_url , parameters, consumerSecret, tokenSecret,
+          { encodeSignature: false});
+
+
+  var encodedSignature = oauthSignature.generate('GET',Yelp_url , parameters, consumerSecret, tokenSecret);
+      parameters.oauth_signature = encodedSignature;
+
+  //yelp AJAX request goes here
+      var settings = {
+        url: Yelp_url,
+        data: parameters,
+        cache: true,                // This is crucial to include as well to prevent jQuery from adding on a cache-buster parameter "_=23489489749837", invalidating our oauth-signature
+        dataType: 'jsonp',
+        success: function(results) {
+         var yelpresult = results.businesses;
+          for(var i = 0; i < yelpresult.length; i++ ) {
+              //console.log( results.businesses[i].name +" " + results.businesses[i].location.coordinate.longitude); // server response
+              myMuseums.push(yelpresult[i].name);
+             
+          }
+          console.log(myMuseums);
+          
+
+        },
+        fail: function() {
+          // Do stuff on fail
+        }
+      };
+
+      // Send AJAX query via jQuery library.
+      $.ajax(settings);
+
+
+
+
+
+
+
+}
+
+/* Generates a random number and returns it as a string for OAuthentication
+ * @return {string} 
+ */
+
+
+  //Search function create and add the filter form to the search field
   $(input).change(function(){
 
     //Get the value of the input, which we filter on
@@ -115,35 +189,20 @@ function myBinding(){
     return (a.textContent || a.innerText || "").toUpperCase().indexOf(m[3].toUpperCase())>=0;
 };
 
-//Array of the museums in the list use for the autocomplete
-var museums = [
-  'Kunstkontakt e. V.',
-  'Bischofsturm' ,
-  'Gerhard D.Wempe KG' ,
-  'Kaffeemusuem-Burg' ,
-  'Deutsches Zollmuseum',
-  'CHOCOVERSUM Schokoladen - Museum',
-  'Bucerius Kunst Forum',
-  'Dialog im Stillen',
-  'Art Business Clud Prima Gallerina',
-  'Genuss Speicher',
-  'Chokoladen Museum',
-  'Dinner in the Dark'
-
-  ];
   // Create the autocomplete object and associate it with the UI input control.
-  $('#autocomplete').autocomplete({
-      source: museums
-  });
+  $('#autocomplete').autocomplete({ 
+      source: museumlist
+    });
 
-function model() {
-
+  /*
+    //creating a array of the li.
+function myBinding(){
+  var liArray = $("li").toArray();
+  for (var i = 0; i< liArray.length; i++) {
+    $("#"+liArray[i].id).click(function(){ 
+      $(this).addClass('clicked-li').siblings().removeClass('clicked-li');
+    });
+  }
   
-}
-
-function view(){
-  
-
-    
-}
+} */
 
