@@ -113,7 +113,7 @@ var viewModel = function() {
    locationList.push(new Location(museum) );
 
   });
-  console.log(locationList);
+  console.log(locationList[0]);
 
 
 /* Generates a random number and returns it as a string for OAuthentication
