@@ -26,16 +26,17 @@
       <input type="text" name="search" placeholder="search a museum" id="autocomplete"  class="filterinput">
       </div>  
   </nav>
-  <div id="infoWindow-wrapper">
+  <!--<div id="infoWindow-wrapper">
     <div id="info-content">
       <p>Name:<strong data-bind="text: museumName"></strong></p>
       <p>Address:<strong data-bind="text: museumAddress"></strong></p>
       <p>Telephone:<strong data-bind="text: museumTelephone"></strong></p>
       <p>Website:<strong data-bind="text: museumWebsite"></strong></p> 
     </div>
-  </div>
+  </div> -->
   <div id="listDisplay"> 
-    <ul id="list">   
+    <ul id="list" data-bind="foreach: museumlist">  
+      <li data-bind="text: name"></li> 
     </ul>
   </div>
 
