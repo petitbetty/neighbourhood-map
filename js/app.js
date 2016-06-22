@@ -11,49 +11,57 @@ var museumlist = [
 {
   name:"Deutsches Zollmuseum",
   lat: 53.5458558223613,
-  lng: 9.99780874916624
+  lng: 9.99780874916624,
+  phone: "+49403008760",
+  address: "Alter Wandrahm 16"
 },
 {
   name:"10. Nacht Der Kirchen",
   lat: 53.5458,
-  lng: 9.99448
+  lng: 9.99448,
+  phone: "+494030033402",
+  address: "Katharinenkirchhof 1"
 },
 {
   name:"Galerie Peter Borchardt",
   lat: 53.5482245,
-  lng: 9.9989131
+  lng: 9.9989131,
+  phone: "+4940388988",
+  address: "Hopfensack 19"
+
 },
 
 {
   name:"Wilfried Bobsien",
   lat: 53.548621,
-  lng: 9.997361
+  lng: 9.997361,
+  phone: "+4940337012",
+  address: "Alter Fischmarkt 11"
 },
 {
   name:"Galerie Commeter Persiehl & Co.",
   lat: 53.55092,
-  lng: 9.995273
+  lng: 9.995273,
+  phone: "+4940326321",
+  address: "Bergstr. 11"
 },
 {
   name:"Galerie Commeter Sommer & Co.",
   lat: 53.5509911,
-  lng: 9.9950304
+  lng: 9.9950304,
+  phone: "+4940326321",
+  address: "Hermannstr. 37"
 },
 {
   name:"Kaffeemuseum Burg",
   lat: 53.5447541998337,
-  lng: 9.99679114669561
+  lng: 9.99679114669561,
+  phone: "+494055204258",
+  address: "St. Annenufer 2"
 },
 
 
 ]; 
-
-var Location = function(model) { 
-    this.name = ko.observable(model.name);   
-    this.lng = ko.observable(model.lng); 
-    this.lat = ko.observable(model.lat);    
-    //this.marker = new google.maps.Marker({}); 
-};  
 
 function initMap() {
 
@@ -80,24 +88,41 @@ function initMap() {
 ko.applyBindings(new viewModel());
 }
 
+var Location = function(model) { 
+    this.name = ko.observable(model.name);   
+    this.lng = ko.observable(model.lng); 
+    this.lat = ko.observable(model.lat); 
+    this.address = ko.observable(model.address);  
+    this.phone = ko.observable(model.phone);   
+    //this.marker = new google.maps.Marker({}); 
+}
+
 /*--- ViewModel ---*/
 var viewModel = function() {
 
   //var self = this;
 
   //create an abservable array for the locations
-  this.locationList = ko.observable([]);
+  var locationList = ko.observableArray();
 
   //iterating through the array of objects, and adding each museum to the locationList array and 
-  //passing each museum to the location constructor.(creating new cat basically)
+  //passing each museum to the location constructor.(creating new museum basically)
   museumlist.forEach(function(museum){
-    //this.locationList.push(new Location(museum) );
-  });
 
+  //self.location.push(new Location(museum) );
+   locationList.push(new Location(museum) );
+
+  });
+  console.log(locationList);
+
+
+/* Generates a random number and returns it as a string for OAuthentication
+ * @return {string} 
+ */
   function nonce_generate() {
     return (Math.floor(Math.random() * 1e12).toString());
   }
-  //var hamburg = {lat: 53.548410, lng: 9.997090};
+
   var consumerSecret = 'eukvtXpjSVpHflSBfrIAx0BsupU',
       tokenSecret = 'X-d9JxoQQBXmr7_Q4FkITvVzk3k';
   var httpMethod = 'GET';
@@ -135,9 +160,11 @@ var viewModel = function() {
         dataType: 'jsonp',
         success: function(results) {
          var yelpresult = results.businesses;
+
           for(var i = 0; i < yelpresult.length; i++ ) {
               //console.log( results.businesses[i].name +" " + results.businesses[i].location.coordinate.longitude); // server response
               myMuseums.push(yelpresult[i].name);
+              //console.log(yelpresult[i]);
              
           }
           console.log(myMuseums);
@@ -152,20 +179,9 @@ var viewModel = function() {
       // Send AJAX query via jQuery library.
       $.ajax(settings);
 
-
-
-
-
-
-
 }
 
-/* Generates a random number and returns it as a string for OAuthentication
- * @return {string} 
- */
-
-
-  //Search function create and add the filter form to the search field
+//Search function create and add the filter form to the search field
   $(input).change(function(){
 
     //Get the value of the input, which we filter on
