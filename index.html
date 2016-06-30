@@ -22,25 +22,33 @@
         </button>
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-       <label for='search'>Museums list :</label>
-      <input type="text" name="search" placeholder="search a museum" id="autocomplete"  class="filterinput">
-      </div>  
+       <label for='search'>Search museums:</label>
+      <input  data-bind="value: filter, valueUpdate: 'afterkeydown'" type="text" >
+      <div class="hidden-sm hidden-md hidden-lg hidden-xl" id="listDisplay"> 
+        <h3>Museums list</h3>
+        <ul id="list" data-bind="foreach: locationList">  
+          <li data-bind="text: name"></li> 
+        </ul>
+      </div>
+      </div> 
+       
   </nav>
   <!--<div id="infoWindow-wrapper">
     <div id="info-content">
-      <p>Name:<strong data-bind="text: museumName"></strong></p>
-      <p>Address:<strong data-bind="text: museumAddress"></strong></p>
-      <p>Telephone:<strong data-bind="text: museumTelephone"></strong></p>
-      <p>Website:<strong data-bind="text: museumWebsite"></strong></p> 
+      <p>Name:<strong data-bind="text: LocationList.name"></strong></p>
+      <p>Address:<strong data-bind="text: LocationList.address"></strong></p>
+      <p>Telephone:<strong data-bind="text: LocationList.phone"></strong></p>
     </div>
   </div> -->
-  <div id="listDisplay"> 
-    <ul id="list" data-bind="foreach: museumlist">  
-      <li data-bind="text: name"></li> 
-    </ul>
-  </div>
-
   
+
+  <div class="hidden-xs" id="listDisplay"> 
+        <h3>Museums list</h3>
+        <ul id="list" data-bind="foreach: locationList">  
+          <img class="museumIcon" src="https://maps.gstatic.com/mapfiles/place_api/icons/museum-71.png" alt="museum icon"><li data-bind="text: name"></li> 
+        </ul>
+      </div>
+      </div> 
   
   <div id="map"></div> 
   <div id="yelpElem"></div>
@@ -48,13 +56,15 @@
   <link href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="Stylesheet"></link>
   <script type="text/javascript" src="js/libs/jquery.min.js"></script>
   <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js" ></script>
+  
+  <script type="text/javascript" src="js/libs/knockout-3.4.0.js"></script>
+  <script type="text/javascript" src="js/app.js"></script>
+
   <!-- google map api -->
-  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDxndCMS1Jsriea9O9FqGExBt4S9IHCL0&libraries=places&callback=initMap" async defer></script>
+   <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDxndCMS1Jsriea9O9FqGExBt4S9IHCL0&libraries=places&callback=initMap" async defer></script>
   <!--JavaScript OAuth 1.0a signature generator -->
   <script src="js/libs/oauth-signature.min.js"></script>
 
-  <script type="text/javascript" src="js/libs/knockout-3.4.0.js"></script>
-  <script type="text/javascript" src="js/app.js"></script>
   
 
   <!-- Latest compiled and minified JavaScript -->

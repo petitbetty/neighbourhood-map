@@ -1,69 +1,209 @@
 
- /*function loadData() {
+var map, service, infowindow;
+var input = /** @type {!HTMLInputElement} */(
+      document.getElementById('autocomplete'));
+var infoWindow;
+var $search = $('.search');
+var $list = $('#list');
+var myMuseums = [];
+var museumIcon = 'https://maps.gstatic.com/mapfiles/place_api/icons/museum-71.png';
 
-    
-    var $yelpElem = $('yelpElem');
+var museumlist = [
+{
+  name:"Deutsches Zollmuseum",
+  lat: 53.5458558223613,
+  lng: 9.99780874916624
+},
+{
+  name:"10. Nacht Der Kirchen",
+  lat: 53.5458,
+  lng: 9.99448
+},
+{
+  name:"Galerie Peter Borchardt",
+  lat: 53.5482245,
+  lng: 9.9989131
+},
 
-    //Your NY Times AJAX request goes here
-   /*var nytimesUrl = 'https://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + $city + '&sort=newest&api-key=9e9bb9ce5431476596f9c75e59a36f6e';
-    //console.log(nytimesUrl);
+{
+  name:"Wilfried Bobsien",
+  lat: 53.548621,
+  lng: 9.997361
+},
+{
+  name:"Galerie Commeter Persiehl & Co.",
+  lat: 53.55092,
+  lng: 9.995273
+},
+{
+  name:"Galerie Commeter Sommer & Co.",
+  lat: 53.5509911,
+  lng: 9.9950304
+},
+{
+  name:"Kaffeemuseum Burg",
+  lat: 53.5447541998337,
+  lng: 9.99679114669561
+},
 
-     $.getJSON(nytimesUrl, function(data) {
 
-        $nytHeaderElem.text('New York Times Articles about ' + $city);
+]; 
 
-        articles = data.response.docs;
-        for (var i = 0; i < articles.length; i++) {
-            var article = articles[i];
-            $nytElem.append('<li class="article">' +
-                '<a href="' + article.web_url + '">' + article.headline.main + '</a>' +
-                '<p>' + article.snippet + '</p>' +
-                '</li>');
-        }
-    }).error(function(){
-        $nytHeaderElem.text('New York Times Articles Could NOT BE LOADED due to error!');
-    });*/
+var Location = function(model) { 
+    this.name = ko.observable(model.name);   
+    this.lng = ko.observable(model.lng); 
+    this.lat = ko.observable(model.lat);    
+    //this.marker = new google.maps.Marker({}); 
+};  
 
-    //yelp AJAX request goes here
-    /* var yelpUrl = 'https://api.yelp.com/v2/search?term=museums&location=hamburg&radius_filter=750';
-     var yelpRequestTimeout = setTimeout(function(){
-        $yelpElem.text("failed to get wikipedia resources");
-     }, 8000);
-     $.ajax({
-        url: yelpUrl,
-        dataType: "jsonp",
-        //jsonp:"callback",
-        success: function(response) {
-            var articlesList = response[6];
+function initMap() {
 
-            for (var i = 0; i < articlesList.length; i++) {
-                articleStr =articlesList[i];
+  var hamburg = {lat: 53.548410, lng: 9.997090};
 
-                //var url = 'https://en.wikipedia.org/wiki/' + articleStr;
-                $yelpElem.append('<li><a href="">' + articleStr + '</a>,</li>');
-            }
-            clearTimeout(wikiRequestTimeout);
-        }
-     });
-return false;
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: hamburg,
+    zoom: 15
+  });
+
+  for (var i = 0; i < museumlist.length; i++) {
+    //Creating new marker object for each site.        
+    marker = new google.maps.Marker({
+      position: {lat: museumlist[i].lat, lng: museumlist[i].lng},
+      map: map,
+      title:museumlist[i].name
+      });
+  }
+
+  // creating the infoWindow 
+  infoWindow = new google.maps.InfoWindow({
+  });
+
+ko.applyBindings(new viewModel());
 }
 
+/*--- ViewModel ---*/
+var viewModel = function() {
 
-$('#form-container').submit(loadData); */
+  var self = this;
+
+  //create an abservable array for the locations
+  this.locationList = ko.observableArray();
+
+  //iterating through the array of objects, and adding each museum to the locationList array and 
+  //passing each museum to the location constructor.(creating new cat basically)
+  museumlist.forEach(function(museum){
+    this.locationList.push(new Location(museum) );
+  });
+  console.log(locationList);
+
+  function nonce_generate() {
+    return (Math.floor(Math.random() * 1e12).toString());
+  }
+  //var hamburg = {lat: 53.548410, lng: 9.997090};
+  var consumerSecret = 'eukvtXpjSVpHflSBfrIAx0BsupU',
+      tokenSecret = 'X-d9JxoQQBXmr7_Q4FkITvVzk3k';
+  var httpMethod = 'GET';
+  var Yelp_url = 'https://api.yelp.com/v2/search/?',
+      parameters = {
+          oauth_consumer_key : '0TqRpmnRh5LnU36tggLf6Q',
+          oauth_token : 'Tjjb2L_1j2OmRDugXvaY99jMeXM71lYm',
+          oauth_nonce : nonce_generate(),
+          oauth_timestamp : Math.floor(Date.now()/1000),
+          oauth_signature_method : 'HMAC-SHA1',
+          oauth_version : '1.0',
+          callback: 'cb',
+          location: 'Altstadt+hamburg',
+          limit: '20',
+          radius_filter: '500',
+          term: 'museum',
+          category_filter: 'museums'
+      },
+      
+      // generates a RFC 3986 encoded, BASE64 encoded HMAC-SHA1 hash
+      encodedSignature = oauthSignature.generate(httpMethod, Yelp_url , parameters, consumerSecret, tokenSecret),
+      // generates a BASE64 encode HMAC-SHA1 hash
+      signature = oauthSignature.generate(httpMethod, Yelp_url , parameters, consumerSecret, tokenSecret,
+          { encodeSignature: false});
 
 
-function AppViewModel() {
-    this.museumName = ko.observable("Bucerius");
-    this.museumAddress = ko.observable("22880 Wedel");
-    this.museumTelephone = ko.observable("0122-2121-232");
-    this.museumWebsite = ko.observable("http:www.bucerius.com");
+  var encodedSignature = oauthSignature.generate('GET',Yelp_url , parameters, consumerSecret, tokenSecret);
+      parameters.oauth_signature = encodedSignature;
+
+  //yelp AJAX request goes here
+      var settings = {
+        url: Yelp_url,
+        data: parameters,
+        cache: true,                // This is crucial to include as well to prevent jQuery from adding on a cache-buster parameter "_=23489489749837", invalidating our oauth-signature
+        dataType: 'jsonp',
+        success: function(results) {
+         var yelpresult = results.businesses;
+          for(var i = 0; i < yelpresult.length; i++ ) {
+              //console.log( results.businesses[i].name +" " + results.businesses[i].location.coordinate.longitude); // server response
+              myMuseums.push(yelpresult[i].name);
+             
+          }
+          console.log(myMuseums);
+          
+
+        },
+        fail: function() {
+          // Do stuff on fail
+        }
+      };
+
+      // Send AJAX query via jQuery library.
+      $.ajax(settings);
 
 
-}    
 
 
-// Activates knockout.js
-var vm = new AppViewModel();
-ko.applyBindings(vm, document.getElementById("infoWindow-wrapper"));
 
 
+
+}
+
+/* Generates a random number and returns it as a string for OAuthentication
+ * @return {string} 
+ */
+
+
+  //Search function create and add the filter form to the search field
+  $(input).change(function(){
+
+    //Get the value of the input, which we filter on
+    var filter = $(this).val();
+
+    if(filter) {
+      $(list).find("li:not(:Contains(" + filter + "))").slideUp();
+      $(list).find("li:Contains("+filter+")").slideDown();
+    } else {
+      $(list).find("li").slideDown();
+    }
+    
+
+  }).keyup(function(){
+    //Fire the above change event after every letter
+    $(this).change();
+  });
+
+//Solving the case sensitive for the user input.
+  jQuery.expr[':'].Contains = function(a,i,m){
+    return (a.textContent || a.innerText || "").toUpperCase().indexOf(m[3].toUpperCase())>=0;
+};
+
+  // Create the autocomplete object and associate it with the UI input control.
+  $('#autocomplete').autocomplete({ 
+      source: museumlist
+    });
+
+  /*
+    //creating a array of the li.
+function myBinding(){
+  var liArray = $("li").toArray();
+  for (var i = 0; i< liArray.length; i++) {
+    $("#"+liArray[i].id).click(function(){ 
+      $(this).addClass('clicked-li').siblings().removeClass('clicked-li');
+    });
+  }
+  
+} */
