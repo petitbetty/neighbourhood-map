@@ -5,10 +5,10 @@ html, body {
 }
 /** Map styling **/
 #map {
-  height: 100%;
-  width: 70%;
-  float: right;
-}
+    height: 100%;
+    width: 70%;
+    float: right;
+  }
 
 /** Navbar and content styling **/
 .navbar {
@@ -61,7 +61,7 @@ ul {
 }
 
 ul li {
-  padding: 7px;
+  padding: 7px 0 10px 40px;
   cursor: pointer;
 } 
 
@@ -74,6 +74,7 @@ ul li:hover {
     width: 10%;
     float: left;
     margin-right: 5%;
+    padding: 5px 0 0 5px;
 }
 
 h5.name {
@@ -84,4 +85,16 @@ h5.name {
 .clicked-li {
   background: #ccc;
   color: #a94442;
+}
+
+/* Smartphones (portrait and landscape) ----------- */
+@media (max-width : 767px) {
+  #map {
+    height: 100%;
+    width: 100%;
+    float: left;
+  }
+  #listDisplay {
+    width: 100%;
+  }
 }
