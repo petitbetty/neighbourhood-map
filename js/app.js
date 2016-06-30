@@ -7,7 +7,9 @@ function initMap() {
     zoom: 15
   });
 
-infowindow = new google.maps.InfoWindow();
+infowindow = new google.maps.InfoWindow({
+  content: document.getElementById('info-content')
+});
     
 ko.applyBindings(new viewModel());
 }
@@ -24,7 +26,14 @@ var Location = function(model) { 
   self.marker = new google.maps.Marker({
     position: {lat: model.lat, lng: model.lng},
     map: map,
+    animation: google.maps.Animation.DROP,
     title:model.name
+  });
+  self.markerClicks = ko.computed(function() {
+     google.maps.event.addListener(self.marker,'click', function() {
+      //infowindow.setContent('<p>Musuem</p>');
+      infowindow.open(map, this);
+    });
   });
   
 }
@@ -153,27 +162,10 @@ var viewModel = function() {
                 phone: yelpresult[i].phone,
                 address: yelpresult[i].location.address[0]
               }
-              self.locationList.push(new Location(museumModel));
-             // markers.push(self.locationList.marker);
-              /* google.maps.event.addListener(self.locationList.marker,'click', function() {
-                infowindow.setContent(self.locationList.name);
-                infowindow.open(map, this);
-              })*/
-              
+              self.locationList.push(new Location(museumModel)); 
           }
           console.log(museumModel);
           
-          
-          
-
-        
-         /* google.maps.event.addListener(marker,'click', function() {
-            infowindow.setContent(model.name);
-            infowindow.open(map, this);
-          });
-          */
-          
-
           //console.log(myMuseums);
 
 

@@ -23,7 +23,7 @@
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
        <label for='search'>Search museums:</label>
-      <input  data-bind="value: filter, valueUpdate: 'afterkeydown'" type="text" >
+      <input  placeholder="Search museum" data-bind="value: filter, valueUpdate: 'afterkeydown'" type="search" >
       <div class="hidden-sm hidden-md hidden-lg hidden-xl" id="listDisplay"> 
         <h3>Museums list</h3>
         <ul id="list" data-bind="foreach: locationList">  
@@ -33,13 +33,13 @@
       </div> 
        
   </nav>
-  <!--<div id="infoWindow-wrapper">
+  <div id="infoWindow-wrapper">
     <div id="info-content">
-      <p>Name:<strong data-bind="text: LocationList.name"></strong></p>
-      <p>Address:<strong data-bind="text: LocationList.address"></strong></p>
-      <p>Telephone:<strong data-bind="text: LocationList.phone"></strong></p>
+      <p>Name:<strong data-bind="text: Location.name"></strong></p>
+      <p>Address:<strong data-bind="text: Location.address"></strong></p>
+      <p>Telephone:<strong data-bind="text: Location.phone"></strong></p>
     </div>
-  </div> -->
+  </div> 
   
 
   <div class="hidden-xs" id="listDisplay"> 
