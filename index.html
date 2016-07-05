@@ -23,28 +23,19 @@
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
        <label for='search'>Search museums:</label>
-      <input  placeholder="Search museum" data-bind="value: filter, valueUpdate: 'afterkeydown'" type="search" >
+      <input id="search-field" type="search"  placeholder="Search museum" data-bind="textInput: filterText " >
       <div class="hidden-sm hidden-md hidden-lg hidden-xl" id="listDisplay"> 
         <h3>Museums list</h3>
-        <ul id="list" data-bind="foreach: locationList">  
+        <ul id="list" data-bind="foreach: filteredPlaces">  
           <li data-bind="text: name"></li> 
         </ul>
       </div>
       </div> 
        
   </nav>
-  <div id="infoWindow-wrapper">
-    <div id="info-content">
-      <p>Name:<strong data-bind="text: Location.name"></strong></p>
-      <p>Address:<strong data-bind="text: Location.address"></strong></p>
-      <p>Telephone:<strong data-bind="text: Location.phone"></strong></p>
-    </div>
-  </div> 
-  
-
   <div class="hidden-xs" id="listDisplay"> 
         <h3>Museums list</h3>
-        <ul id="list" data-bind="foreach: locationList">  
+        <ul id="list" data-bind="foreach: filteredPlaces">  
           <img class="museumIcon" src="https://maps.gstatic.com/mapfiles/place_api/icons/museum-71.png" alt="museum icon"><li data-bind="text: name"></li> 
         </ul>
       </div>

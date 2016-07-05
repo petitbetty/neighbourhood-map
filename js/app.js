@@ -7,9 +7,7 @@ function initMap() {
     zoom: 15
   });
 
-infowindow = new google.maps.InfoWindow({
-  content: document.getElementById('info-content')
-});
+infowindow = new google.maps.InfoWindow();
     
 ko.applyBindings(new viewModel());
 }
@@ -29,12 +27,11 @@ var Location = function(model) { 
     animation: google.maps.Animation.DROP,
     title:model.name
   });
-  self.markerClicks = ko.computed(function() {
-     google.maps.event.addListener(self.marker,'click', function() {
-      //infowindow.setContent('<p>Musuem</p>');
-      infowindow.open(map, this);
-    });
+  google.maps.event.addListener(self.marker,'click', function() {
+    infowindow.setContent('<div><p>Name:<strong> '+ self.name()+ '</strong></p><p>Address:<strong> '+self.address() +'</strong></p><p>Telephone:<strong> '+ self.phone()+'</strong></p></div>');
+    infowindow.open(map, this);
   });
+ 
   
 }
 
@@ -57,55 +54,10 @@ var viewModel = function() {
   var self = this;
 
   //create an abservable array for the locations
-  self.locationList = ko.observableArray();
-  self.filter = ko.observable();
-  //self.markers = ko.observableArray();
-
-
-  /*ko.utils.stringStartsWith = function (string, startsWith) {         
-    string = string || "";
-    if (startsWith.length > string.length)
-      return false;
-      return string.substring(0, startsWith.length) === startsWith;
-  }*/
-
-  self.filteredPlaces = ko.computed(function() {
-    // return array, string
-    /* self.filter ==  $('input').val();//the current value of the input in the DOM
-    var tempArray = [];
-    self.locationList().forEach(function(location) {
-      // location matches filter?
-      if(!self.filter){
-        // NO: location.hideMarker();
-        //location.hideMarker();
-
-      } else {
-        // YES: push location to tempArray
-        tempArray.push(location);
-        return ko.utils.arrayFirst(tempArray, function(location) {
-            return ko.utils.stringStartsWith(location.name().toLowerCase(), self.filter());
-            console.log(self.filter);
-
-        });
-      }
-    });
-     
-  */
-    // loop through locations and push tempArray
-    // return tempArray
-
-    
-  });
-
-  self.filteredPlaces();
-
-
-  // console.log(locationList[0]);
-
-  // self.locationList().forEach(function(location) {
-  //   location.hideMarker();
-  // });
-
+  self.locationList = ko.observableArray([]);
+  self.filterText = ko.observable();
+  
+  
 /* Generates a random number and returns it as a string for OAuthentication
  * @return {string}
  */
@@ -152,9 +104,6 @@ var viewModel = function() {
          var yelpresult = results.businesses;
 
           for(var i = 0; i < yelpresult.length; i++ ) {
-              //console.log( results.businesses[i].name +" " + results.businesses[i].location.coordinate.longitude); // server response
-              //myMuseums.push(yelpresult[i].name);
-              //console.log(yelpresult[i]);
               var museumModel = {
                 name: yelpresult[i].name,
                 lat: yelpresult[i].location.coordinate.latitude,
@@ -164,11 +113,6 @@ var viewModel = function() {
               }
               self.locationList.push(new Location(museumModel)); 
           }
-          console.log(museumModel);
-          
-          //console.log(myMuseums);
-
-
         },
         fail: function() {
           // Do stuff on fail
@@ -177,5 +121,51 @@ var viewModel = function() {
 
       // Send AJAX query via jQuery library.
       $.ajax(settings);
+
+      self.filteredPlaces = ko.computed(function() {
+    if(!self.filterText()){
+       console.log('filterText empty');
+      return self.locationList();
+      //location.hideMarker();
+     
+
+    }
+    else {
+      console.log('filterText not empty');
+      return ko.utils.arrayFilter(self.locationList(), function(item){
+       // var filterResults = item.name().toLowerCase().indexOf(self.filterText());
+       //return filterResults;
+        return item.name() == self.filterText();
+        
+
+      });
+    }
+  });
+
+        // return array, string
+   /* var tempArray = [];
+    self.locationList().forEach(function(location) {
+      // location matches filter?
+      if(!self.filter){
+        // NO: location.hideMarker();
+        //location.hideMarker();
+
+      } else {
+        // YES: push location to tempArray
+        tempArray.push(location);
+        return ko.utils.arrayFirst(tempArray, function(location) {
+            return ko.utils.stringStartsWith(location.name().toLowerCase(), self.filter());
+            console.log(self.filter);
+
+        });
+      }
+    }); */
+     
+  
+    // loop through locations and push tempArray
+    // return tempArray
+
+  self.filteredPlaces();
+
 
 }
