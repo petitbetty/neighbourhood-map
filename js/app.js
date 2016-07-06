@@ -1,5 +1,6 @@
-var map, infowindow;
-var myMuseums = [];
+var map, infowindow, autocomplete, places;
+var input = document.getElementById('search-field');
+var errorMessage = ko.observable();
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -8,7 +9,11 @@ function initMap() {
   });
 
 infowindow = new google.maps.InfoWindow();
-    
+
+autocomplete = new google.maps.places.Autocomplete(input);
+autocomplete.bindTo('bounds', map);
+
+
 ko.applyBindings(new viewModel());
 }
 
@@ -30,22 +35,71 @@ var Location = function(model) { 
   google.maps.event.addListener(self.marker,'click', function() {
     infowindow.setContent('<div><p>Name:<strong> '+ self.name()+ '</strong></p><p>Address:<strong> '+self.address() +'</strong></p><p>Telephone:<strong> '+ self.phone()+'</strong></p></div>');
     infowindow.open(map, this);
+
+    self.marker.setIcon(/** @type {google.maps.Icon} */({
+      url: 'https://maps.gstatic.com/intl/en_us/mapfiles/marker_green.png',
+      size: new google.maps.Size(71, 71),
+      origin: new google.maps.Point(0, 0),
+      anchor: new google.maps.Point(17, 34)
+     
+    }));
   });
- 
+
+  // autocomplete event listener for the searched result
+  autocomplete.addListener('place_changed', function() {
+  infowindow.close();
+  self.marker.setVisible(false);
+  var place = autocomplete.getPlace();
+  if (!place.geometry) {
+    //window.alert("Autocomplete's returned place contains no geometry");
+    return;
+  }
+  // If the place has a geometry, then present it on a map.
+  if (place.geometry.viewport) {
+    map.fitBounds(place.geometry.viewport);
+  } else {
+    map.setCenter(place.geometry.location);
+    map.setZoom(17);  // Why 17? Because it looks good.
+  }
+  self.marker.setIcon(/** @type {google.maps.Icon} */({
+    url: 'https://maps.gstatic.com/intl/en_us/mapfiles/marker_green.png',
+    size: new google.maps.Size(72, 72),
+    origin: new google.maps.Point(0, 0),
+    anchor: new google.maps.Point(17, 34)
+
+  }));
+  self.marker.setPosition(place.geometry.location);
+  self.marker.setVisible(true);
+
+  if (place.address_components) {
+    infowindow.setContent('<div><p>Name:<strong> '+ self.name()+ '</strong></p><p>Address:<strong> '+self.address() +'</strong></p><p>Telephone:<strong> '+ self.phone()+'</strong></p></div>');
+    infowindow.open(map, self.marker);
+  }
+});
   
 }
+Location.prototype.clickedName = function() {
+  google.maps.event.trigger(this.marker, 'click');
+};
 
+/*hide marker function
 Location.prototype.hideMarker = function() {
+  console.log('hideMarker');
   // "this" is the current instance
   var self = this;
   self.marker.setVisible(false);
 };
 
+//Show marker funtion
 Location.prototype.showMarker = function() {
+  console.log('showMarker');
   // "this" is the current instance
   var self = this;
   self.marker.setVisible(true);
 };
+*/
+
+
 
 
 /*--- ViewModel ---*/
@@ -56,7 +110,6 @@ var viewModel = function() {
   //create an abservable array for the locations
   self.locationList = ko.observableArray([]);
   self.filterText = ko.observable();
-  
   
 /* Generates a random number and returns it as a string for OAuthentication
  * @return {string}
@@ -93,79 +146,57 @@ var viewModel = function() {
 
   var encodedSignature = oauthSignature.generate('GET',Yelp_url , parameters, consumerSecret, tokenSecret);
       parameters.oauth_signature = encodedSignature;
+  //Error ajax message variable
+  errorMessage = setTimeout(function(){
+    $("#yelpElem").text("Error, failed to get yep resources");
+  }, 8000);
 
   //yelp AJAX request goes here
-      var settings = {
-        url: Yelp_url,
-        data: parameters,
-        cache: true,                // This is crucial to include as well to prevent jQuery from adding on a cache-buster parameter "_=23489489749837", invalidating our oauth-signature
-        dataType: 'jsonp',
-        success: function(results) {
-         var yelpresult = results.businesses;
+    var settings = {
+      url: Yelp_url,
+      data: parameters,
+      cache: true,                // This is crucial to include as well to prevent jQuery from adding on a cache-buster parameter "_=23489489749837", invalidating our oauth-signature
+      dataType: 'jsonp',
+      success: function(results) {
+       var yelpresult = results.businesses;
+       var myPlaces = [];
 
-          for(var i = 0; i < yelpresult.length; i++ ) {
-              var museumModel = {
-                name: yelpresult[i].name,
-                lat: yelpresult[i].location.coordinate.latitude,
-                lng: yelpresult[i].location.coordinate.longitude,
-                phone: yelpresult[i].phone,
-                address: yelpresult[i].location.address[0]
-              }
-              self.locationList.push(new Location(museumModel)); 
-          }
-        },
-        fail: function() {
-          // Do stuff on fail
+        for(var i = 0; i < yelpresult.length; i++ ) {
+            var museumModel = {
+              name: yelpresult[i].name,
+              lat: yelpresult[i].location.coordinate.latitude,
+              lng: yelpresult[i].location.coordinate.longitude,
+              phone: yelpresult[i].phone,
+              address: yelpresult[i].location.address[0]
+            }
+            self.locationList.push(new Location(museumModel)); 
+           myPlaces.push(yelpresult[i].name);
+            
         }
-      };
+        console.log(myPlaces);
+        
+        clearTimeout(errorMessage);
+      }
+    };
 
-      // Send AJAX query via jQuery library.
-      $.ajax(settings);
+    // Send AJAX query via jQuery library.
+    $.ajax(settings);
 
-      self.filteredPlaces = ko.computed(function() {
+  //the museums filter function
+    self.filteredPlaces = ko.computed(function() {
     if(!self.filterText()){
-       console.log('filterText empty');
       return self.locationList();
-      //location.hideMarker();
-     
-
+      self.locationList().showMarker();
     }
     else {
-      console.log('filterText not empty');
       return ko.utils.arrayFilter(self.locationList(), function(item){
-       // var filterResults = item.name().toLowerCase().indexOf(self.filterText());
-       //return filterResults;
-        return item.name() == self.filterText();
-        
-
+        var filterResults = item.name().toLowerCase().indexOf(self.filterText()) > -1;
+        return filterResults;
+        self.locationList().hideMarker();
       });
     }
-  });
-
-        // return array, string
-   /* var tempArray = [];
-    self.locationList().forEach(function(location) {
-      // location matches filter?
-      if(!self.filter){
-        // NO: location.hideMarker();
-        //location.hideMarker();
-
-      } else {
-        // YES: push location to tempArray
-        tempArray.push(location);
-        return ko.utils.arrayFirst(tempArray, function(location) {
-            return ko.utils.stringStartsWith(location.name().toLowerCase(), self.filter());
-            console.log(self.filter);
-
-        });
-      }
-    }); */
-     
-  
-    // loop through locations and push tempArray
-    // return tempArray
+});
 
   self.filteredPlaces();
-
 
 }

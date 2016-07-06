@@ -82,9 +82,22 @@ h5.name {
     width: 84%;
 }
 
+.selected-li {
+  background: #ccc;
+  color: #a94442
+}
+
 .clicked-li {
   background: #ccc;
   color: #a94442;
+}
+
+#infoWindow-wrapper {
+  display: none;
+}
+
+#search-field {
+    width: 300px;
 }
 
 /* Smartphones (portrait and landscape) ----------- */
