@@ -23,27 +23,26 @@
       </div>
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
        <label for='search'>Search museums:</label>
-      <input id="search-field" type="search"  placeholder="Search museum" data-bind="textInput: filterText " >
+      <input id="search-field" type="search"  placeholder="Search museum" data-bind="textInput: filterText" >
       <div class="hidden-sm hidden-md hidden-lg hidden-xl" id="listDisplay"> 
         <h3>Museums list</h3>
         <ul id="list" data-bind="foreach: filteredPlaces">  
-          <li data-bind="text: name"></li> 
+          <img class="museumIcon" src="https://maps.gstatic.com/mapfiles/place_api/icons/museum-71.png" alt="museum icon"><li class="list-item" data-bind="text: name, click: clickedName"></li> 
         </ul>
       </div>
       </div> 
        
   </nav>
   <div class="hidden-xs" id="listDisplay"> 
-        <h3>Museums list</h3>
-        <ul id="list" data-bind="foreach: filteredPlaces">  
-          <img class="museumIcon" src="https://maps.gstatic.com/mapfiles/place_api/icons/museum-71.png" alt="museum icon"><li data-bind="text: name, click: clickedName, $parent.changeBackground"></li> 
-        </ul>
-      </div>
-      </div> 
-  
-  <div id="map"></div> 
-  <div id="yelpElem" data-bind="text: errorMessage"></div>
+    <h3>Museums list</h3>
+    <ul id="list" data-bind="foreach: filteredPlaces">  
+      <img class="museumIcon" src="https://maps.gstatic.com/mapfiles/place_api/icons/museum-71.png" alt="museum icon"><li class="list-item" data-bind="text: name, click: clickedName"></li> 
+    </ul>
+  </div>
+  <!--<div id="yelpElem" data-bind="text: errorMessage"></div> -->
 
+  <div id="map"></div> 
+  
   <link href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="Stylesheet"></link>
   <script type="text/javascript" src="js/libs/jquery.min.js"></script>
   <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js" ></script>
