@@ -30,10 +30,10 @@ a list of the those museums names which you can search a specific museum using t
 The app is fully responsive, meaning you can you it on your destop,tablet and mobile phone.
 
 ### Bugs
+
  In case the resources don't get loaded from yelp api, you will get an alert window telling you "Fail to load resources from yelp".
  if you can across any problem, bug please let me know.
 
-
- ### Libraries used
+### Libraries used
 
  bootstrap, knockout.js, google map api (require a key), yelp api
