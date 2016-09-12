@@ -1,8 +1,5 @@
 var map, infowindow, autocomplete, places;
-var urls =['https://maps.gstatic.com/intl/en_us/mapfiles/marker.png','https://maps.gstatic.com/intl/en_us/mapfiles/marker_green.png'];
-var markers = [];  
-
-var errorMessage = ko.observable('');
+//var urls =['https://maps.gstatic.com/intl/en_us/mapfiles/marker.png','https://maps.gstatic.com/intl/en_us/mapfiles/marker_green.png'];
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
@@ -12,8 +9,8 @@ function initMap() {
 
 infowindow = new google.maps.InfoWindow();
 
-//markerListener();
 ko.applyBindings(new viewModel());
+
 }
 
 //Class for location object
@@ -31,54 +28,44 @@ var Location = function(model) { 
     animation: google.maps.Animation.DROP,
     title:model.name
   });
+
+  // Create an onClick event to open an infoWindow at each marker.
   google.maps.event.addListener(self.marker,'click', function() {
+
+      //Create the content of infoWindow
       infowindow.setContent('<div><p>Name:<strong> '+ self.name()+ '</strong></p><p>Address:<strong> '+self.address() +'</strong></p><p>Telephone:<strong> '+ self.phone()+'</strong></p></div>');
       infowindow.open(map, this);
 
-       if (this.getAnimation() !== null) {
-         this.setAnimation(null);
+      //Close infowindow
+      infowindow.addListener('closeClick', function() {
+        infowindow.setContent(null);
+
+      });
+
+      //Animate  marker
+      if (self.marker.getAnimation() !== null) {
+         self.marker.setAnimation(null);
+
         } else {
-          this.setAnimation(google.maps.Animation.BOUNCE);
+          self.marker.setAnimation(google.maps.Animation.BOUNCE);
+          setTimeout(function(){
+            self.marker.setAnimation(null);
+          }, 2000);
         }  
 
-    });
-
-  
+    }); 
   
 }
 
-//Click listener for marker
-/*function markerListener() {
-  for (var i = 0; i < viewModel.locationList().lenght; i++) {
-    //var theLocation;
-    google.maps.event.addListener(viewModel.locationList()[i].marker,'click', function() {
-      console.log("cliked");
-      infowindow.setContent('<div><p>Name:<strong> '+ viewModel.locationList()[i].name()+ '</strong></p><p>Address:<strong> '+viewModel.locationList()[i].address() +'</strong></p><p>Telephone:<strong> '+ viewModel.locationList()[i].phone()+'</strong></p></div>');
-      infowindow.open(map, this);
 
-       if (this.getAnimation() !== null) {
-         this.setAnimation(null);
-        } else {
-          this.setAnimation(google.maps.Animation.BOUNCE);
-        }  
-
-     });
-  }
-
-}*/
-
-
+//Trigger click event on marker
 Location.prototype.clickedName = function() {
   google.maps.event.trigger(this.marker, 'click');
   
 };
 
-  //creating a array of the li.
-
-
 //hide marker function
 Location.prototype.hideMarker = function() {
-  console.log('hideMarker');
   // "this" is the current instance
   var self = this;
   self.marker.setVisible(false);
@@ -86,7 +73,6 @@ Location.prototype.hideMarker = function() {
 
 //Show marker funtion
 Location.prototype.showMarker = function() {
-  console.log('showMarker');
   // "this" is the current instance
   var self = this;
   self.marker.setVisible(true);
@@ -104,6 +90,8 @@ var viewModel = function() {
   //create an abservable array for the locations
   self.locationList = ko.observableArray([]);
   self.filterText = ko.observable();
+  //self.markers = ko.observableArray([]);  
+
   
 /* Generates a random number and returns it as a string for OAuthentication
  * @return {string}
@@ -126,7 +114,7 @@ var viewModel = function() {
           callback: 'cb',
           location: 'Altstadt+hamburg',
           limit: '20',
-          radius_filter: '500',
+          radius_filter: '700',
           term: 'museum',
           category_filter: 'museums'
       },
@@ -140,10 +128,13 @@ var viewModel = function() {
 
   var encodedSignature = oauthSignature.generate('GET',Yelp_url , parameters, consumerSecret, tokenSecret);
       parameters.oauth_signature = encodedSignature;
-  //Error ajax message variable
-  errorMessage = setTimeout(function(){
-    $("#yelpElem").text("Error, failed to get yep resources");
-  }, 8000);
+
+  //The error handling function
+  var yelpRequestTimerout = setTimeout( function() {
+   //var errorMessage = ko.observable('Failed to get yelp resources');
+   alert('Failed to get yelp resources');
+
+  }, 6000);
 
   //yelp AJAX request goes here
     var settings = {
@@ -153,8 +144,6 @@ var viewModel = function() {
       dataType: 'jsonp',
       success: function(results) {
         var yelpresult = results.businesses;
-         //var myPlaces = [];
-        
 
         for(var i = 0; i < yelpresult.length; i++ ) {
 
@@ -166,35 +155,48 @@ var viewModel = function() {
             address: yelpresult[i].location.address[0]
           }
 
-          self.locationList.push(new Location(museumModel)); 
-            
+          self.locationList.push(new Location(museumModel));
         }
 
-        console.log(self.locationList());
-        
-        clearTimeout(errorMessage);
+        clearTimeout(yelpRequestTimerout);
+            
       }
-    };
+     
+  };
 
     // Send AJAX query via jQuery library.
     $.ajax(settings);
 
-  //the museums filter function
+  //The museums filter  and update the marker according the search field.
     self.filteredPlaces = ko.computed(function() {
+      
         if(!self.filterText()){
-         // self.locationList().hideMarker;
+          self.locationList().forEach(function(item) {
+              item.showMarker();
+            }
+          );
           return self.locationList();
           
-        }
-        else {
+        } else {
           
           return ko.utils.arrayFilter(self.locationList(), function(item){
-            var filterResults = item.name().toLowerCase().indexOf(self.filterText()) > -1;
+            var filterResults = item.name().toLowerCase().indexOf(self.filterText().toLowerCase()) > -1;
+            item.showMarker();
+
+              if(filterResults) {
+
+                item.showMarker();
+
+              } else {
+
+                item.hideMarker();
+              }
+
             return filterResults;
-           // self.locationList().showMarker;
-            
           });
+          
         }
+
     });
 
   self.filteredPlaces();

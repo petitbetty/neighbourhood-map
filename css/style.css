@@ -64,10 +64,13 @@ ul li {
   padding: 7px 0 10px 40px;
   cursor: pointer;
 } 
-
-ul li:hover {
-  background-color: #fff;
+ul li a {
+  color: #777;
+}
+ul li:hover, ul li a:hover {
+  background-color: #ddd;
   color: #333;
+  text-decoration: none;
 }
 
 .museumIcon {
@@ -80,11 +83,6 @@ ul li:hover {
 h5.name {
     font-size: 14px;
     width: 84%;
-}
-
-.selected-li {
-  background: #ccc;
-  color: #a94442
 }
 
 .clicked-li {
@@ -109,5 +107,8 @@ h5.name {
   }
   #listDisplay {
     width: 100%;
+  }
+  .museumIcon {
+    width: 9%;
   }
 }
