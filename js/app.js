@@ -1,6 +1,5 @@
 var map, infowindow, autocomplete, places;
-//var urls =['https://maps.gstatic.com/intl/en_us/mapfiles/marker.png','https://maps.gstatic.com/intl/en_us/mapfiles/marker_green.png'];
-
+  
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 53.548410, lng: 9.997090},
@@ -50,12 +49,12 @@ var Location = function(model) { 
           self.marker.setAnimation(google.maps.Animation.BOUNCE);
           setTimeout(function(){
             self.marker.setAnimation(null);
-          }, 2000);
+          }, 1400);
         }  
 
     }); 
   
-}
+};
 
 
 //Trigger click event on marker
@@ -126,7 +125,7 @@ var viewModel = function() {
           { encodeSignature: false});
 
 
-  var encodedSignature = oauthSignature.generate('GET',Yelp_url , parameters, consumerSecret, tokenSecret);
+   encodedSignature = oauthSignature.generate('GET',Yelp_url , parameters, consumerSecret, tokenSecret);
       parameters.oauth_signature = encodedSignature;
 
   //The error handling function
@@ -151,9 +150,9 @@ var viewModel = function() {
             name: yelpresult[i].name,
             lat: yelpresult[i].location.coordinate.latitude,
             lng: yelpresult[i].location.coordinate.longitude,
-            phone: yelpresult[i].phone,
+            phone: yelpresult[i].phone || "no phone number",
             address: yelpresult[i].location.address[0]
-          }
+          };
 
           self.locationList.push(new Location(museumModel));
         }
@@ -202,4 +201,7 @@ var viewModel = function() {
   self.filteredPlaces();
 
  
-}
+};
+
+  
+
