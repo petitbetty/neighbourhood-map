@@ -11,6 +11,10 @@ infowindow = new google.maps.InfoWindow();
 ko.applyBindings(new viewModel());
 
 }
+//error fallback function
+function googleError() {
+  alert("Sorry, it seems like the Google Maps script does not load");
+}
 
 //Class for location object
 var Location = function(model) { 
@@ -87,7 +91,7 @@ var viewModel = function() {
   var self = this;
 
   //create an abservable array for the locations
-  self.locationList = ko.observableArray([]);
+  self.locationList = ko.observableArray();
   self.filterText = ko.observable();
   //self.markers = ko.observableArray([]);  
 
@@ -200,8 +204,4 @@ var viewModel = function() {
 
   self.filteredPlaces();
 
- 
 };
-
-  
-
