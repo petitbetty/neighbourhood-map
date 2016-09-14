@@ -20,11 +20,11 @@ function googleError() {
 var Location = function(model) { 
   var self = this;
   
-  self.name = ko.observable(model.name); 
-  self.lng = ko.observable(model.lng); 
-  self.lat = ko.observable(model.lat); 
-  self.address = ko.observable(model.address); 
-  self.phone = ko.observable(model.phone); 
+  self.name = model.name; 
+  self.lng = model.lng; 
+  self.lat = model.lat; 
+  self.address = model.address; 
+  self.phone = model.phone; 
   self.marker = new google.maps.Marker({
     position: {lat: model.lat, lng: model.lng},
     map: map,
